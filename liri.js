@@ -1,144 +1,91 @@
 require("dotenv").config();
-var keys = require("./keys")
-var request = require("request")
-var Spotify = require("node-spotify-api")
-var dateFormat = require("dateFormat")
-var fs = require("fs")
+var keys = require("./keys.js");
+var Spotify = require('node-spotify-api'); 
+var spotify = new Spotify(keys.spotify);
+var moment = require('moment'); 
+var axios = require('axios'); 
+var fs = require('fs'); 
 
-// Takes an artist and searches the Bands in Town 
-// Artist API for an artist and render information
-var concertThis = function(artist){
-    var region = ""
-    var queryUrl = "https://rest.bandsintown.com/artists/" + artist.replace(" ", "+") + "/events?app_id=codingbootcamp"
-    //console.log(queryUrl);
-    
-    request(queryUrl, function(err, response, body){
-        // If the request is successful
-        if (!err && response.statusCode === 200) {
-            // Save parsed body in a new variable for easier use
-            var concertInfo = JSON.parse(body)
-            
-            outputData(artist + " concert information:")
+var command = process.argv[2]; 
+var value = process.argv[3]; 
+switch (command) {
+    case "concert-this":
+        concertThis(value);
+        break;
+    case "spotify-this-song":
+        spotifySong(value);
+        break;
+    case "movie-this":
+        movieThis(value);
+        break;
+    case "do-what-it-says":
+        doThis(value);
+        break;
+};
 
-            for (i=0; i < concertInfo.length; i++) {
-                
-                region = concertInfo[i].venue.region
-                 //handle Canadian venues
-                if (region === "") {
-                    region = concertInfo[i].venue.country
-                }
+function concertThis(value) {
+    axios.get("https://rest.bandsintown.com/artists/" + value + "/events?app_id=codingbootcamp")
+    .then(function(response) {    
+        for (var i = 0; i < response.data.length; i++) {
 
-                // Need to return Name of venue, Venue location, Date of event (MM/DD/YYYY)
-                outputData("Venue: " + concertInfo[i].venue.name)
-                outputData("Location: " + concertInfo[i].venue.city + ", " + region);
-                outputData("Date: " + dateFormat(concertInfo[i].datetime, "mm/dd/yyyy"))
-            }
+            var datetime = response.data[i].datetime; //Saves datetime response into a variable
+            var dateArr = datetime.split('T'); //split the date and time 
+
+            var concertResults = 
+                    "\nVenue Name: " + response.data[i].venue.name + 
+                    "\nVenue Location: " + response.data[i].venue.city +
+                    "\nDate of the Event: " + moment(dateArr[0], "MM-DD-YYYY"); //dateArr[0] should be the date separated from the time
+            console.log(concertResults);
         }
     })
-}
-
-// This will take a song, search spotify and return information
-var spotifyThisSong = function(song){
-    // Default should be "The Sign" by Ace of Base
-    if (!song){
-        song = "The Sign Ace of Base"
-    }
-
-    var spotify = new Spotify(keys.spotify);
-
-    spotify.search({type: "track", query: song, limit: 1}, function (err, data){
-        if (err) {
-            return console.log(err)
-        }
-
-        // Need to return Artist(s), Song Name, Album, Preview link of song from Spotify
-        var songInfo = data.tracks.items[0]
-        outputData(songInfo.artists[0].name)
-        outputData(songInfo.name)
-        outputData(songInfo.album.name)
-        outputData(songInfo.preview_url)
-    })
-}
-
-// This will take a movie, search IMDb and return information
-var movieThis = function(movie){
-    // Default should be "Mr. Nobody"
-    if (!movie){
-        movie = "Mr.+Nobody"
-    }
-
-    var queryUrl = "http://www.omdbapi.com/?t=" + movie + "&y=&plot=short&apikey=trilogy";
-    //console.log(queryUrl);
-
-    // Then create a request to the queryUrl
-    request(queryUrl, function(err, response, body){
-        // If the request is successful
-        if (!err && response.statusCode === 200) {
-            // Need to return: Title, Year, IMDB Rating, Rotten Tomatoes Rating, Country, 
-            // Language, Plot, Actors
-            var movieInfo = JSON.parse(body)
-
-            outputData("Title: " + movieInfo.Title)
-            outputData("Release year: " + movieInfo.Year)
-            outputData("IMDB Rating: " + movieInfo.imdbRating)
-            outputData("Rotten Tomatoes Rating: " + movieInfo.Ratings[1].Value)
-            outputData("Country: " + movieInfo.Country)
-            outputData("Language: " + movieInfo.Language)
-            outputData("Plot: " + movieInfo.Plot)
-            outputData("Actors: " + movieInfo.Actors)
-        }
-    })
-}
-
-// Using the `fs` Node package, LIRI will take the text inside of random.txt
-// and then use it to call one of LIRI's commands.
-var doWhatItSays = function(){
-
-    // read from file
-    fs.readFile("random.txt", "utf8", function (err, data) {
-        if(err){
-            return console.log(err)
-        }
+    .catch(function (error) {
+        console.log(error);
+    });
         
-        var dataArr = data.split(",")
 
-        // call appropriate function and pass arguement
-        runAction(dataArr[0], dataArr[1])
+}
+
+function spotifySong(value) {
+    if(!value){
+        value = "The Sign";
+    }
+    spotify
+    .search({ type: 'track', query: value })
+    .then(function(response) {
+        for (var i = 0; i < 5; i++) {
+            var spotifyResults = 
+                    "\nArtist(s): " + response.tracks.items[i].artists[0].name + "\nSong Name: " + response.tracks.items[i].name +"\nAlbum Name: " + response.tracks.items[i].album.name +"\nPreview Link: " + response.tracks.items[i].preview_url;
+                    
+            console.log(spotifyResults);
+        }
+    })
+    .catch(function(err) {
+        console.log(err);
     });
 }
 
-// This function will handle outputting to the console and writing to log file
-var outputData = function(data) {
-    console.log(data)
+function movieThis(value) {
+    if(!value){
+        value = "mr nobody";
+    }
+    axios.get("https://www.omdbapi.com/?t=" + value + "&y=&plot=short&apikey=trilogy")
+    .then(function(response) {
+            var movieResults = "\nMovie Title: " + response.data.Title + "\nYear of Release: " + response.data.Year +"\nIMDB Rating: " + response.data.imdbRating +"\nRotten Tomatoes Rating: " + response.data.Ratings[1].Value +"\nCountry Produced: " + response.data.Country +"\nLanguage: " + response.data.Language +"\nPlot: " + response.data.Plot +"\nActors/Actresses: " + response.data.Actors;
+                console.log(movieResults);
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+    
+}
 
-    fs.appendFile("log.txt", "\r\n" + data, function (err){
-        if(err){
-            return console.log(err)
-        } 
+function doThis(value) {
+
+    fs.readFile("random.txt", "utf8", function(error, data) {
+        if (error) {
+            return console.log(error);
+        }
+        var dataArr = data.split(',');
+        spotifySong(dataArr[0], dataArr[1]);
     })
 }
-
-var runAction = function(func, parm) {
-    switch (func) {
-        case "concert-this":
-            concertThis(parm)
-            break
-        case "spotify-this-song":
-            spotifyThisSong(parm)
-            break
-        case "movie-this":
-            movieThis(parm)
-            break
-        case "do-what-it-says":
-            doWhatItSays()
-            break
-        default:
-            outputData("That is not a command that I recognize, please try again.") 
-    }
-}
-
-runAction(process.argv[2], process.argv[3])
-
-
-
-
