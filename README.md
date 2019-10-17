@@ -34,7 +34,7 @@ This will output:
 Name of the Venue
 Location of the Venue
 Date of the Event
-
+![](images/ss1.png)
 
 
 node liri spotify-this-song 'song name'
@@ -44,7 +44,7 @@ Artist(s)
 Song Name
 Song Preview Link
 Album of the Song
-
+![](images/ss2)
 If no song is provided then the song "The Sign" will be searched instead
 
 
@@ -61,7 +61,7 @@ Country the Movie was made in
 Language the Movie is in
 Plot of the Movie
 Actors in the Movie
-
+![](images/ss3)
 If no movie is provided then the movie "Mr. Nobody." will be searched instead
 
 
@@ -71,4 +71,5 @@ The program will take the text inside of random.txt and use it to call the first
 
 random.txt: spotify-this-song,"I Want it That Way"
 
-This would call the spotify-this-song function and pass in "I Want it That Way" as the object.
+This would call the spotify-this-song function and pass in "I Want it That Way" as the object,
+however, my do-what-it-says function does not work 100% and Im not sure why.
