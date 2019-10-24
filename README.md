@@ -21,30 +21,32 @@ Create a random.txt file which will contain: spotify-this-song,"I Want it That W
 
 
 liri Available functions:
-concert-this
-spotify-this-song
-movie-this
-do-what-it-says
+concert-this,
+spotify-this-song,
+movie-this,
+do-what-it-says,
 
 Running the following commands in your terminal will do the following:
 
 node liri.js concert-this 'concert or band name'
 This will output:
 
-Name of the Venue
-Location of the Venue
+Name of the Venue,
+Location of the Venue,
 Date of the Event
-![](images/ss1.png)
+
+![](images/ss1.PNG)
 
 
 node liri spotify-this-song 'song name'
 This will output:
 
-Artist(s)
-Song Name
-Song Preview Link
-Album of the Song
-![](images/ss2)
+Artist(s),
+Song Name,
+Song Preview Link,
+Album of the Song,
+
+![](images/ss2.PNG)
 If no song is provided then the song "The Sign" will be searched instead
 
 
@@ -53,15 +55,16 @@ If no song is provided then the song "The Sign" will be searched instead
 node liri.js movie-this 'movie name'
 This will output:
 
-Title of the Movie
-Year the Movie was Released
-The IMDB Rating
-The Rotten Tomatoes Rating
-Country the Movie was made in
-Language the Movie is in
-Plot of the Movie
-Actors in the Movie
-![](images/ss3)
+Title of the Movie,
+Year the Movie was Released,
+The IMDB Rating,
+The Rotten Tomatoes Rating,
+Country the Movie was made in,
+Language the Movie is in,
+Plot of the Movie,
+Actors in the Movie,
+
+![](images/ss3.PNG)
 If no movie is provided then the movie "Mr. Nobody." will be searched instead
 
 
